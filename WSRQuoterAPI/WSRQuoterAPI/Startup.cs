@@ -1,3 +1,4 @@
+using Hangfire;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -29,7 +30,13 @@ namespace WSRQuoterAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<InsuranceDBContext>(x => x.UseSqlServer(Configuration.GetConnectionString("ConStr")));
+            services.AddHangfire(x => x.UseSqlServerStorage(Configuration.GetConnectionString("HangfireConStr")));
+            services.AddHangfireServer();
+            services.AddAutoMapper(typeof(Startup));
             services.AddScoped<IAgentService, AgentService>();
+            services.AddScoped<IPolicyHolderService, PolicyHolderService>();
+            services.AddScoped<IUSDASyncService, USDASyncService>();
+            services.AddScoped<IRepositoryService, RepositoryService>();
             services.AddControllers();
         }
 
@@ -42,6 +49,8 @@ namespace WSRQuoterAPI
             }
 
             app.UseHttpsRedirection();
+
+            app.UseHangfireDashboard();
 
             app.UseRouting();
 

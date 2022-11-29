@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WSRQuoterAPI.Models.USDADtos;
 
 namespace WSRQuoterAPI.Models
 {
@@ -11,6 +12,26 @@ namespace WSRQuoterAPI.Models
             set;
         }
         DbSet<PolicyHolder> PolicyHolders
+        {
+            get;
+            set;
+        }
+        DbSet<State> States
+        {
+            get;
+            set;
+        }
+        DbSet<County> Counties
+        {
+            get;
+            set;
+        }
+        DbSet<SubCounty> SubCounties
+        {
+            get;
+            set;
+        }
+        DbSet<RainfallYear> RainfallYears
         {
             get;
             set;

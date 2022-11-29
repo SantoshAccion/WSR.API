@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 using WSRQuoterAPI.Models;
 using WSRQuoterAPI.Services;
 
@@ -34,7 +36,7 @@ namespace WSRQuoterAPI.Controllers
                 var agents = _agentService.GetAgentList();
                 if (agents == null)
                     return NotFound();
-                
+
                 return Ok(agents);
             }
             catch (Exception ex)
@@ -60,7 +62,7 @@ namespace WSRQuoterAPI.Controllers
                 var agent = _agentService.GetAgentDetailsById(id);
                 if (agent == null)
                     return NotFound();
-                
+
                 return Ok(agent);
             }
             catch (Exception ex)
@@ -84,7 +86,7 @@ namespace WSRQuoterAPI.Controllers
                 _logger.LogInformation("SaveAgent called");
 
                 var model = _agentService.SaveAgent(agentModel);
-                
+
                 return Ok(model);
             }
             catch (Exception ex)
@@ -108,7 +110,7 @@ namespace WSRQuoterAPI.Controllers
                 _logger.LogInformation("DeleteAgent called");
 
                 var model = _agentService.DeleteAgent(id);
-                
+
                 return Ok(model);
             }
             catch (Exception ex)

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using WSRQuoterAPI.Models;
+using WSRQuoterAPI.Models.USDADtos;
 using WSRQuoterAPI.ViewModels;
 
 namespace WSRQuoterAPI.Services
@@ -126,6 +127,5 @@ namespace WSRQuoterAPI.Services
 
             return model;
         }
-
     }
 }
