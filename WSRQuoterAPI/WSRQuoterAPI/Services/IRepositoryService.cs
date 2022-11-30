@@ -11,5 +11,8 @@ namespace WSRQuoterAPI.Services
         void SaveCountiesData(CountyListDto counties, string stateCode);
         void SaveSubCountiesData(SubCountyListDto subCounties, string stateCode, string countyCode);
         void SaveRainfallYearsData(List<int> years);
+        void SaveValidIntervalCodesData(IntervalCodeDto validIntervals, USDACode usdaCode, SubCounty subCounty, CoverageLevel coverageLevel);
+        void SaveRainfallIndexesData(RainfallIndexDto rainfallIndex);
+        void SaveCountyBaseValuesData(PricingRatesDto pricingRates, USDACode usdaCode, SubCounty subCounty);
     }
 }

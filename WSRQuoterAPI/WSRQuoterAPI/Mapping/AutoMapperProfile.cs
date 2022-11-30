@@ -17,6 +17,8 @@ namespace WSRQuoterAPI.Mapping
                 (dest => dest.GridId, opt => opt.MapFrom(src => src));
             CreateMap<int, RainfallYear>().ForMember
                 (dest => dest.Year, opt => opt.MapFrom(src => src));
+            CreateMap<ValidatedInterval, ValidIntervalCode>();
+            CreateMap<HistoricalIndexDataColumn, RainfallIndex>();
         }
     }
 }

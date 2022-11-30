@@ -130,5 +130,102 @@ namespace WSRQuoterAPI.Services
                 _logger.LogError(ex, "Error occured in saving Rainfall Years in database");
             }
         }
+
+        public void SaveValidIntervalCodesData(IntervalCodeDto validIntervals, USDACode usdaCode, SubCounty subCounty, CoverageLevel coverageLevel)
+        {
+            try
+            {
+                var list = validIntervals.validatedIntervals.Select(x => _mapper.Map<ValidIntervalCode>(x)).ToList();
+
+                foreach (var item in list)
+                {
+                    item.IntendedUse = usdaCode.IntendedUse;
+                    item.IrrigationPractice = usdaCode.IrrigationPractice;
+                    item.OrganicPractice = usdaCode.OrganicPractice;
+                    item.StateCode = subCounty.StateCode;
+                    item.CountyCode = subCounty.CountyCode;
+                    item.GridId = subCounty.GridId;
+                    item.CoveragePercentage = coverageLevel.CoveragePercentage;
+                }
+
+                var propToInclude = new List<string> { nameof(ValidIntervalCode.PremiumRate), nameof(ValidIntervalCode.IntervalIsValid) };
+                var propToUpdate = new List<string> { nameof(ValidIntervalCode.StateCode), nameof(ValidIntervalCode.CountyCode), nameof(ValidIntervalCode.GridId), nameof(ValidIntervalCode.CoveragePercentage), nameof(ValidIntervalCode.IntervalCode), nameof(ValidIntervalCode.IntendedUse), nameof(ValidIntervalCode.IrrigationPractice), nameof(ValidIntervalCode.OrganicPractice) };
+                var bulkConfig = new BulkConfig { PropertiesToInclude = propToInclude, UpdateByProperties = propToUpdate };
+
+                using (var transaction = _context.Database.BeginTransaction())
+                {
+                    _context.BulkInsertOrUpdate(list, bulkConfig);
+                    transaction.Commit();
+                }
+                _logger.LogInformation("Valid Interval Codes saved in database");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occured in saving Valid Interval Codes in database");
+            }
+        }
+
+        public void SaveRainfallIndexesData(RainfallIndexDto rainfallIndex)
+        {
+            try
+            {
+                foreach (var index in rainfallIndex.HistoricalIndexRows)
+                {
+                    var list = index.HistoricalIndexDataColumns.Select(x => _mapper.Map<RainfallIndex>(x)).ToList();
+
+                    var propToInclude = new List<string> { nameof(RainfallIndex.PercentOfNormal), nameof(RainfallIndex.IntervalMeasurement), nameof(RainfallIndex.AverageIntervalMeasurement), nameof(RainfallIndex.FilingStatusId) };
+                    var propToUpdate = new List<string> { nameof(RainfallIndex.Year), nameof(RainfallIndex.IntervalCode), nameof(RainfallIndex.GridId) };
+                    var bulkConfig = new BulkConfig { PropertiesToInclude = propToInclude, UpdateByProperties = propToUpdate };
+
+                    using (var transaction = _context.Database.BeginTransaction())
+                    {
+                        _context.BulkInsertOrUpdate(list, bulkConfig);
+                        transaction.Commit();
+                    }
+                    _logger.LogInformation("Rainfall Indexes saved in database");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occured in saving Rainfall Indexes in database");
+            }
+        }
+
+        public void SaveCountyBaseValuesData(PricingRatesDto pricingRates, USDACode usdaCode, SubCounty subCounty)
+        {
+            try
+            {
+                if (pricingRates.returnData.PricingRateSummary != null)
+                {
+                    var countyBaseValue = new CountyBaseValue();
+                    var countyBaseValues = new List<CountyBaseValue>();
+
+                    countyBaseValue.BaseValue = pricingRates.returnData.PricingRateSummary.CountyBaseValue;
+                    countyBaseValue.IntendedUse = usdaCode.IntendedUse;
+                    countyBaseValue.IrrigationPractice = usdaCode.IrrigationPractice;
+                    countyBaseValue.OrganicPractice = usdaCode.OrganicPractice;
+                    countyBaseValue.StateCode = subCounty.StateCode;
+                    countyBaseValue.CountyCode = subCounty.CountyCode;
+                    countyBaseValue.SampleYear = pricingRates.returnData.RainfallYear;
+
+                    countyBaseValues.Add(countyBaseValue);
+
+                    var propToInclude = new List<string> { nameof(CountyBaseValue.BaseValue) };
+                    var propToUpdate = new List<string> { nameof(CountyBaseValue.IntendedUse), nameof(CountyBaseValue.IrrigationPractice), nameof(CountyBaseValue.OrganicPractice), nameof(CountyBaseValue.StateCode), nameof(CountyBaseValue.CountyCode), nameof(CountyBaseValue.SampleYear) };
+                    var bulkConfig = new BulkConfig { PropertiesToInclude = propToInclude, UpdateByProperties = propToUpdate };
+
+                    using (var transaction = _context.Database.BeginTransaction())
+                    {
+                        _context.BulkInsertOrUpdate(countyBaseValues, bulkConfig);
+                        transaction.Commit();
+                    }
+                    _logger.LogInformation("County Base Values saved in database");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occured in saving County Base Values in database");
+            }
+        }
     }
 }

@@ -176,5 +176,186 @@ namespace WSRQuoterAPI.Services
 
             return years;
         }
+
+        public async Task<IntervalCodeDto> GetValidIntervalCodes()
+        {
+            var validIntervals = new IntervalCodeDto();
+
+            string baseUrl = Business.Constants.GetValidIntervalCodes;
+            HttpClient client = new HttpClient();
+
+            try
+            {
+                var subCounties = new List<SubCounty>();
+                subCounties = _context.Set<SubCounty>().ToList();
+                var usdaCodes = new List<USDACode>();
+                usdaCodes = _context.Set<USDACode>().ToList();
+                var coverageLevels = new List<CoverageLevel>();
+                coverageLevels = _context.Set<CoverageLevel>().ToList();
+
+                foreach (var usdaCode in usdaCodes)
+                {
+                    foreach (var subCounty in subCounties)
+                    {
+                        foreach (var coverageLevel in coverageLevels)
+                        {
+                            string query;
+                            var cont = new FormUrlEncodedContent(
+                                new Dictionary<string, string>()
+                                {
+                                    { "intervalType", "BiMonthly"},
+                                    { "irrigationPracticeCode", usdaCode.IrrigationPractice},
+                                    { "organicPracticeCode", usdaCode.OrganicPractice},
+                                    { "intendedUseCode", usdaCode.IntendedUse},
+                                    { "stateCode", subCounty.StateCode},
+                                    { "countyCode", subCounty.CountyCode},
+                                    { "gridId", subCounty.GridId},
+                                    { "coverageLevelPercent", coverageLevel.CoveragePercentage.ToString()},
+                                });
+
+                            query = cont.ReadAsStringAsync().Result;
+
+
+                            HttpResponseMessage res = client.GetAsync(baseUrl + "?" + query).Result;
+                            HttpContent content = res.Content;
+                            var data = await content.ReadAsStringAsync();
+
+                            if (content != null)
+                            {
+                                validIntervals = JsonConvert.DeserializeObject<IntervalCodeDto>(data);
+                                if (validIntervals.validatedIntervals != null)
+                                    _repositoryService.SaveValidIntervalCodesData(validIntervals, usdaCode, subCounty, coverageLevel);
+                            }
+                        }
+                    }
+                }
+
+                _logger.LogInformation("Valid Interval Codes Synced");
+            }
+
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occured in Valid Interval Codes Sync");
+            }
+
+            return validIntervals;
+        }
+
+        public async Task<RainfallIndexDto> GetRainfallIndexes()
+        {
+            var rainfallIndex = new RainfallIndexDto();
+
+            string baseUrl = Business.Constants.GetIndexValues;
+            HttpClient client = new HttpClient();
+
+            try
+            {
+                var minYear = new RainfallYear();
+                minYear = _context.Set<RainfallYear>().OrderBy(x => x.Year).FirstOrDefault();
+                var maxYear = new RainfallYear();
+                maxYear = _context.Set<RainfallYear>().OrderBy(x => x.Year).LastOrDefault();
+                var subCounties = new List<string>();
+                subCounties = _context.Set<SubCounty>().Select(x => x.GridId).Distinct().OrderBy(x => x).ToList();
+
+                foreach (var subCounty in subCounties)
+                {
+                    string query;
+                    var cont = new FormUrlEncodedContent(
+                        new Dictionary<string, string>()
+                        {
+                            { "intervalType", "BiMonthly"},
+                            { "sampleYearMinimum", minYear.Year.ToString()},
+                            { "sampleYearMaximum", maxYear.Year.ToString()},
+                            { "gridId", subCounty},
+                        });
+
+                    query = cont.ReadAsStringAsync().Result;
+
+
+                    HttpResponseMessage res = client.GetAsync(baseUrl + "?" + query).Result;
+                    HttpContent content = res.Content;
+                    var data = await content.ReadAsStringAsync();
+
+                    if (content != null)
+                    {
+                        rainfallIndex = JsonConvert.DeserializeObject<RainfallIndexDto>(data, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+                        if (rainfallIndex.HistoricalIndexRows != null)
+                            _repositoryService.SaveRainfallIndexesData(rainfallIndex);
+                    }
+                }
+
+                _logger.LogInformation("Rainfall Indexes Synced");
+            }
+
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occured in Rainfall Indexes Sync");
+            }
+
+            return rainfallIndex;
+        }
+
+        public async Task<PricingRatesDto> GetCountyBaseValues()
+        {
+            var pricingRates = new PricingRatesDto();
+
+            string baseUrl = Business.Constants.GetPricingRates;
+            HttpClient client = new HttpClient();
+
+            try
+            {
+                var subCounties = new List<SubCounty>();
+                subCounties = _context.Set<SubCounty>().ToList();
+                var usdaCodes = new List<USDACode>();
+                usdaCodes = _context.Set<USDACode>().ToList();
+
+                foreach (var usdaCode in usdaCodes)
+                {
+                    foreach (var subCounty in subCounties)
+                    {
+                        string query;
+                        var cont = new FormUrlEncodedContent(
+                            new Dictionary<string, string>()
+                            {
+                                { "intervalType", "BiMonthly"},
+                                { "irrigationPracticeCode", usdaCode.IrrigationPractice},
+                                { "organicPracticeCode", usdaCode.OrganicPractice},
+                                { "intendedUseCode", usdaCode.IntendedUse},
+                                { "stateCode", subCounty.StateCode},
+                                { "countyCode", subCounty.CountyCode},
+                                { "gridId", subCounty.GridId},
+                                { "coverageLevelPercent", "90"},
+                                { "productivityFactor", "100"},
+                                { "insurableInterest", "100"},
+                                { "insuredAcres", "100"},
+                                { "sampleYear", DateTime.Now.Year.ToString()},
+                                { "intervalPercentOfValues", "[25,0,25,0,25,0,0,0,25,0,0]"},
+                            });
+
+                        query = cont.ReadAsStringAsync().Result;
+
+                        HttpResponseMessage res = client.GetAsync(baseUrl + "?" + query).Result;
+                        HttpContent content = res.Content;
+                        var data = await content.ReadAsStringAsync();
+
+                        if (content != null)
+                        {
+                            pricingRates = JsonConvert.DeserializeObject<PricingRatesDto>(data);
+                            if (pricingRates.returnData.PricingRateSummary != null)
+                                _repositoryService.SaveCountyBaseValuesData(pricingRates, usdaCode, subCounty);
+                        }
+                    }
+                }
+
+                _logger.LogInformation("County Base Values Synced");
+            }
+
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occured in County Base Values Sync");
+            }
+
+            return pricingRates;
+        }
     }
 }

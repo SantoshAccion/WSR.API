@@ -16,6 +16,16 @@ namespace WSRQuoterAPI.Models
             get;
             set;
         }
+        DbSet<USDACode> USDACodes
+        {
+            get;
+            set;
+        }
+        DbSet<IntervalCode> IntervalCodes
+        {
+            get;
+            set;
+        }
         DbSet<State> States
         {
             get;
@@ -32,6 +42,26 @@ namespace WSRQuoterAPI.Models
             set;
         }
         DbSet<RainfallYear> RainfallYears
+        {
+            get;
+            set;
+        }
+        DbSet<ValidIntervalCode> ValidIntervalCodes
+        {
+            get;
+            set;
+        }
+        DbSet<CoverageLevel> CoverageLevels
+        {
+            get;
+            set;
+        }
+        DbSet<RainfallIndex> RainfallIndices
+        {
+            get;
+            set;
+        }
+        DbSet<CountyBaseValue> CountyBaseValues
         {
             get;
             set;

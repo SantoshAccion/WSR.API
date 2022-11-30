@@ -12,5 +12,8 @@ namespace WSRQuoterAPI.Services
         Task<CountyListDto> GetCounties();
         Task<SubCountyListDto> GetSubCounties();
         Task<List<int>> GetRainfallYears();
+        Task<IntervalCodeDto> GetValidIntervalCodes();
+        Task<RainfallIndexDto> GetRainfallIndexes();
+        Task<PricingRatesDto> GetCountyBaseValues();
     }
 }

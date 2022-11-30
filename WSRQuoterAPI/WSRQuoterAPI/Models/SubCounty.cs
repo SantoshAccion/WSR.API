@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace WSRQuoterAPI.Models.USDADtos
+namespace WSRQuoterAPI.Models
 {
     public class SubCounty
     {

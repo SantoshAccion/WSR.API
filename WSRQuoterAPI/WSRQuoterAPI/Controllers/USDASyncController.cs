@@ -27,6 +27,12 @@ namespace WSRQuoterAPI.Controllers
         public String Sync()
         {
             RecurringJob.AddOrUpdate(() => _usdaSyncService.GetStates(), Cron.Daily);
+            RecurringJob.AddOrUpdate(() => _usdaSyncService.GetCounties(), Cron.Daily);
+            RecurringJob.AddOrUpdate(() => _usdaSyncService.GetSubCounties(), Cron.Daily);
+            RecurringJob.AddOrUpdate(() => _usdaSyncService.GetRainfallYears(), Cron.Daily);
+            RecurringJob.AddOrUpdate(() => _usdaSyncService.GetValidIntervalCodes(), Cron.Daily);
+            RecurringJob.AddOrUpdate(() => _usdaSyncService.GetRainfallIndexes(), Cron.Daily);
+            RecurringJob.AddOrUpdate(() => _usdaSyncService.GetCountyBaseValues(), Cron.Daily);
 
             return "Synced!";
         }
@@ -68,12 +74,12 @@ namespace WSRQuoterAPI.Controllers
         }
 
         [HttpGet]
-        [Route("SyncIntervalCodes")]
-        public String SyncIntervalCodes()
+        [Route("SyncValidIntervalCodes")]
+        public String SyncValidIntervalCodes()
         {
-            _usdaSyncService.GetIntervalCodes();
+            _usdaSyncService.GetValidIntervalCodes();
 
-            return "Interval Codes Synced!";
+            return "Valid Interval Codes Synced!";
         }
 
         [HttpGet]
@@ -83,6 +89,15 @@ namespace WSRQuoterAPI.Controllers
             _usdaSyncService.GetRainfallIndexes();
 
             return "Rainfall Indexes Synced!";
+        }
+
+        [HttpGet]
+        [Route("SyncCountyBaseValues")]
+        public String SyncCountyBaseValues()
+        {
+            _usdaSyncService.GetCountyBaseValues();
+
+            return "County Base Values Synced!";
         }
     }
 }
